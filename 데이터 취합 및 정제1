@@ -1,0 +1,677 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/iioo233/contest_rental-deposit/blob/main/%EB%8D%B0%EC%9D%B4%ED%84%B0%20%EC%B7%A8%ED%95%A9%20%EB%B0%8F%20%EC%A0%95%EC%A0%9C1\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**readme**\n",
+        "\n",
+        "---\n",
+        "\n",
+        "1. #로 표시된 주석부분은 잘 읽어주세요.\n",
+        "2. '''로 표시된 주석부분은 안 읽으셔도 됩니다.\n",
+        "3. 자신의 구글 드라이브에 'data파일'을 업로드해주세요. (경로는 자기 마음대로 하셔도 됩니다)\n",
+        "4. data파일에는 juso.xlsx, 주택정보가 포함된 각종 xlsx파일이 있습니다."
+      ],
+      "metadata": {
+        "id": "6I_h8vcdfgeU"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "XyO9c3AHd67t"
+      },
+      "outputs": [],
+      "source": [
+        "import os\n",
+        "import glob\n",
+        "import pandas as pd\n",
+        "import requests\n",
+        "import json\n",
+        "from urllib.parse import urlparse\n",
+        "import numpy as np"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google.colab import drive\n",
+        "drive.mount('/content/drive')"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "PchFvShrx9pR",
+        "outputId": "d15d77d5-595e-4aab-b545-4a54bd9f102e"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Drive already mounted at /content/drive; to attempt to forcibly remount, call drive.mount(\"/content/drive\", force_remount=True).\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## 1. **데이터 불러오기**\n",
+        "\n",
+        "\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "UwjGk3KGgVmQ"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "x_NTSfYo083P",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "793f4c52-8d60-4427-ae16-e833750ee366"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "(3, 5080)\n"
+          ]
+        }
+      ],
+      "source": [
+        "# 주소 불러오는 창에 자신의 구글 드라이브 경로에 맞도록만 잘 수정해주세요.\n",
+        "\n",
+        "Juso = pd.read_excel(\"/content/drive/MyDrive/분석공모전/data/juso.xlsx\")\n",
+        "\n",
+        "print(Juso.values.shape)\n",
+        "juso = Juso.values[0,:].tolist()\n",
+        "x = Juso.values[1,:].tolist()\n",
+        "y = Juso.values[2,:].tolist()\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "11qiO0Bj2HG8"
+      },
+      "outputs": [],
+      "source": [
+        "# 구글 드라이브에 data파일을 업로드해주세요.\n",
+        "# 주소 불러오는 창에 자신의 구글 드라이브 경로에 맞도록만 잘 수정해주세요.\n",
+        "\n",
+        "all_filenames1 = []\n",
+        "all_filenames2 = []\n",
+        "for i in range(5):\n",
+        "  all_filenames1.append(\"/content/drive/MyDrive/분석공모전/data/연립:다세대(전월세)/{}/연립:다세대(전월세)_{}.csv\".format(2012+i, 2012+i))\n",
+        "for i in range(6):\n",
+        "  all_filenames2.append(\"/content/drive/MyDrive/분석공모전/data/연립:다세대(전월세)/{}/연립:다세대(전월세)_{}.csv\".format(2017+i, 2017+i))\n",
+        "\n",
+        "all_filenames3 = []\n",
+        "\n",
+        "for i in range(11):\n",
+        "  all_filenames3.append(\"/content/drive/MyDrive/분석공모전/data/아파트(전월세)/{}/아파트(전월세)_{}.xlsx\".format(2012+i, 2012+i))\n",
+        "\n",
+        "all_filenames5 = []\n",
+        "all_filenames6 = []\n",
+        "\n",
+        "for i in range(5):\n",
+        "  all_filenames5.append(\"/content/drive/MyDrive/분석공모전/data/오피스텔(매매)/{}/오피스텔(매매)_{}.csv\".format(2012+i, 2012+i))\n",
+        "for i in range(6):\n",
+        "  all_filenames6.append(\"/content/drive/MyDrive/분석공모전/data/오피스텔(매매)/{}/오피스텔(매매)_{}.csv\".format(2017+i, 2017+i))"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df1 = pd.concat(map(pd.read_excel, all_filenames1), ignore_index=True)\n",
+        "df2 = pd.concat(map(pd.read_excel, all_filenames2), ignore_index=True)"
+      ],
+      "metadata": {
+        "id": "G_R1jPzaaYbL"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df3 = []\n",
+        "for i in range(5, 11):\n",
+        "  df3.append(pd.read_excel(all_filenames3[i]))\n",
+        "  print(2012+i, 'complete')"
+      ],
+      "metadata": {
+        "id": "LxfbMtexaZnS",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "c21077d9-7ad4-405e-de54-b100f147adf3"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "2017 complete\n",
+            "2018 complete\n",
+            "2019 complete\n",
+            "2020 complete\n",
+            "2021 complete\n",
+            "2022 complete\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df31 = []\n",
+        "for i in range(5):\n",
+        "  df31.append(pd.read_excel(all_filenames3[i]))\n",
+        "  print(2012+i, 'complete')"
+      ],
+      "metadata": {
+        "id": "zaNSkXQnae3B",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "f57e8a94-0109-4f08-8fe1-a8937c687d26"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "2012 complete\n",
+            "2013 complete\n",
+            "2014 complete\n",
+            "2015 complete\n",
+            "2016 complete\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "t9swxMPNj5Sy"
+      },
+      "outputs": [],
+      "source": [
+        "df5 = pd.concat(map(pd.read_excel, all_filenames5), ignore_index=True)\n",
+        "df6 = pd.concat(map(pd.read_excel, all_filenames6), ignore_index=True)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## **2. 함수&경로 설정**"
+      ],
+      "metadata": {
+        "id": "yUBQRmXVgfgu"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "6U1LIGKD4568"
+      },
+      "outputs": [],
+      "source": [
+        "os.chdir(\"/content/drive/MyDrive/분석공모전/data\") # 어디에 다운 받을지 경로 입력하시면 됩니다\n",
+        "\n",
+        "def drop_df_junsae(df): \n",
+        "  idx_np = np.array([])\n",
+        "  np.set_printoptions(precision=3, suppress=True)\n",
+        "  idx_ = df[df['Unnamed: 1'] == '번지'].index\n",
+        "  idx_2 = df[df['Unnamed: 5'] == '월세'].index\n",
+        "\n",
+        "  for i in range(16):\n",
+        "    idx_np = np.concatenate([idx_np,(idx_-i).values])\n",
+        "  idx_np = np.concatenate([idx_np,idx_2.values])\n",
+        "\n",
+        "  df = df.drop(idx_np)\n",
+        "  return df\n",
+        "\n",
+        "\n",
+        "\n",
+        "def drop_df_maemae(df):\n",
+        "  \n",
+        "  idx_np = np.array([])\n",
+        "  np.set_printoptions(precision=3, suppress=True)\n",
+        "  idx_ = df[df['Unnamed: 1'] == '번지'].index\n",
+        "\n",
+        "  for i in range(16):\n",
+        "    idx_np = np.concatenate([idx_np,(idx_-i).values])\n",
+        "  df = df.drop(idx_np)\n",
+        "  return df\n",
+        "\n",
+        "def sum_region_func(a, b):\n",
+        "  return np.array(list(set(np.concatenate([a, b], axis = 0).tolist())))\n",
+        "\n",
+        "def getLatLng(addr):\n",
+        "  url = 'https://dapi.kakao.com/v2/local/search/address.json?query='+ addr\n",
+        "  headers = {\"Authorization\": \"KakaoAK 0301e0a85f3c0bacdf0ab3efbc398a9f\"}\n",
+        "\n",
+        "  result = requests.get(urlparse(url).geturl(), headers=headers).json()\n",
+        "  match_first = result['documents'][0]['address']\n",
+        "\n",
+        "  return float(match_first['y']),float(match_first['x'])\n",
+        "\n",
+        "  "
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## **3. 데이터 정제** "
+      ],
+      "metadata": {
+        "id": "NmKUL07igtVT"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### **1. 전세/매매 데이터 정제작업**"
+      ],
+      "metadata": {
+        "id": "1nhXNJSag6CM"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df1 = drop_df_junsae(df1)\n",
+        "df2 = drop_df_junsae(df2)\n",
+        "\n",
+        "for i in range(5):\n",
+        "  df31[i] = drop_df_junsae(df31[i])\n",
+        "\n",
+        "for i in range(6):\n",
+        "  df3[i] = drop_df_junsae(df3[i])\n",
+        "\n",
+        "df5 = drop_df_maemae(df5)\n",
+        "df6 = drop_df_maemae(df6)"
+      ],
+      "metadata": {
+        "id": "X1a6CFgnazpm"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### **2. 지역 데이터 정제작업**"
+      ],
+      "metadata": {
+        "id": "FhK8p8BNj1v6"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "region1 = np.array(list(map(str, df1['□ 본 서비스에서 제공하는 정보는 법적인 효력이 없으므로 참고용으로만 활용하시기 바랍니다.'].values.tolist())))\n",
+        "region_col1 = np.unique(region1)\n",
+        "\n",
+        "\n",
+        "region2 = np.array(list(map(str, df2['□ 본 서비스에서 제공하는 정보는 법적인 효력이 없으므로 참고용으로만 활용하시기 바랍니다.'].values.tolist())))\n",
+        "region_col2 = np.unique(region2)\n",
+        "\n",
+        "region3 = []\n",
+        "region31 = []\n",
+        "for i in range(5):\n",
+        "  region31.append(np.array(list(map(str, df31[i]['□ 본 서비스에서 제공하는 정보는 법적인 효력이 없으므로 참고용으로만 활용하시기 바랍니다.'].values.tolist()))))\n",
+        "\n",
+        "for i in range(6):\n",
+        "\n",
+        "  region3.append(np.array(list(map(str, df3[i]['□ 본 서비스에서 제공하는 정보는 법적인 효력이 없으므로 참고용으로만 활용하시기 바랍니다.'].values.tolist()))))\n",
+        "\n",
+        "\n",
+        "region5 = np.array(list(map(str, df5['□ 본 서비스에서 제공하는 정보는 법적인 효력이 없으므로 참고용으로만 활용하시기 바랍니다.'].values.tolist())))\n",
+        "region_col5 = np.unique(region5)\n",
+        "\n",
+        "\n",
+        "region6 = np.array(list(map(str, df6['□ 본 서비스에서 제공하는 정보는 법적인 효력이 없으므로 참고용으로만 활용하시기 바랍니다.'].values.tolist())))\n",
+        "region_col6 = np.unique(region6)\n",
+        "\n",
+        "\n",
+        "update_col = np.array([])\n",
+        "update_col = sum_region_func(region_col1, region_col2)\n",
+        "for i in range(5):\n",
+        "  update_col = sum_region_func(update_col, np.unique(np.array(region31[i])))\n",
+        "\n",
+        "for i in range(6):\n",
+        "  update_col = sum_region_func(update_col, np.unique(np.array(region3[i])))\n",
+        "update_col = sum_region_func(update_col, region_col5)\n",
+        "update_col = sum_region_func(update_col, region_col6)"
+      ],
+      "metadata": {
+        "id": "oGhez0etbGhR"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###**3. 카카오 API에서 주소 불러오는 작업**"
+      ],
+      "metadata": {
+        "id": "AcwsW7YFhMob"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "s8914D76485W",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 72
+        },
+        "outputId": "c9f0dc92-f46b-43f0-9365-f5036b6c0b98"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'\\njuso = [] # 빈 리스트\\nfor i in update_col: #데이터프레임 길이 만큼 반복문\\n  juso.append(i)\\nprint(len(juso))\\n#랜덤함수로 키 돌려쓰는 for문\\nx = []\\ny = []\\n\\nfor i in juso:\\n    url = f\\'https://dapi.kakao.com/v2/local/search/address.json?query={i}\\'\\n    headers = {\"Authorization\": \"KakaoAK 0301e0a85f3c0bacdf0ab3efbc398a9f\"}\\n    api_test = requests.get(url,headers= headers)\\n    url_text = json.loads(api_test.text)\\n\\n    try:\\n      x.append(url_text[\\'documents\\'][0][\\'address\\'][\\'x\\'])\\n      y.append(url_text[\\'documents\\'][0][\\'address\\'][\\'y\\'])\\n      \\n    except:\\n      x.append(0)\\n      y.append(0)\\n\\n'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 21
+        }
+      ],
+      "source": [
+        "# 조금 오래 걸리는 작업인데 juso.xlsx 파일만 불러온다면 건너뛸 수 있습니다. juso.xlsx 파일은 미리 제가 만들어 놓았습니다.\n",
+        "'''\n",
+        "juso = [] # 빈 리스트\n",
+        "for i in update_col: #데이터프레임 길이 만큼 반복문\n",
+        "  juso.append(i)\n",
+        "print(len(juso))\n",
+        "#랜덤함수로 키 돌려쓰는 for문\n",
+        "x = []\n",
+        "y = []\n",
+        "\n",
+        "for i in juso:\n",
+        "    url = f'https://dapi.kakao.com/v2/local/search/address.json?query={i}'\n",
+        "    headers = {\"Authorization\": \"KakaoAK 0301e0a85f3c0bacdf0ab3efbc398a9f\"}\n",
+        "    api_test = requests.get(url,headers= headers)\n",
+        "    url_text = json.loads(api_test.text)\n",
+        "\n",
+        "    try:\n",
+        "      x.append(url_text['documents'][0]['address']['x'])\n",
+        "      y.append(url_text['documents'][0]['address']['y'])\n",
+        "      \n",
+        "    except:\n",
+        "      x.append(0)\n",
+        "      y.append(0)\n",
+        "\n",
+        "'''"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "XTtJXWSR77rs",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 35
+        },
+        "outputId": "d7177322-328e-4b57-db4d-6943e926e9ba"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'\\njusodf = pd.DataFrame([np.array(juso), np.array(x), np.array(y)])\\njusodf.to_excel(\"juso.xlsx\", index=False, encoding=\\'utf-8-sig\\')\\n'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 22
+        }
+      ],
+      "source": [
+        "'''\n",
+        "jusodf = pd.DataFrame([np.array(juso), np.array(x), np.array(y)])\n",
+        "jusodf.to_excel(\"juso.xlsx\", index=False, encoding='utf-8-sig')\n",
+        "'''"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### **4. 위도/경도 데이터 넣는 작업 & 엑셀로 내보내는 작업**\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "NFsXNz72hVaY"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "ge36smlaoEPT"
+      },
+      "outputs": [],
+      "source": [
+        "ans_w1 = []\n",
+        "ans_g1 = []\n",
+        "\n",
+        "for i in range(len(region1)):\n",
+        "  for j in range(len(juso)):\n",
+        "    if juso[j] == region1[i]:\n",
+        "      ans_w1.append(y[j])\n",
+        "      ans_g1.append(x[j])\n",
+        "      break\n",
+        "\n",
+        "df1['위도']=ans_w1\n",
+        "df1['경도']=ans_g1\n",
+        "\n",
+        "\n",
+        "df1.to_excel(\"연립:다세대(전월세)_2012-2016.xlsx\", index=False, encoding='utf-8-sig')      \n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "5_KFQetNVgCb"
+      },
+      "outputs": [],
+      "source": [
+        "ans_w2 = []\n",
+        "ans_g2 = []\n",
+        "\n",
+        "for i in range(len(region2)):\n",
+        "  for j in range(len(juso)):\n",
+        "    if juso[j] == region2[i]:\n",
+        "      ans_w2.append(y[j])\n",
+        "      ans_g2.append(x[j])\n",
+        "      break\n",
+        "\n",
+        "\n",
+        "df2['위도']=ans_w2\n",
+        "df2['경도']=ans_g2\n",
+        "\n",
+        "df2.to_excel(\"연립:다세대(전월세)_2017-2022.xlsx\", index=False, encoding='utf-8-sig')\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "QRmmwD3KodvC"
+      },
+      "outputs": [],
+      "source": [
+        "ans_w31 = []\n",
+        "ans_g31 = []\n",
+        "for s in range(5):\n",
+        "  ans_w = []\n",
+        "  ans_g = []\n",
+        "  for i in range(len(region31[s])):\n",
+        "    for j in range(len(juso)):\n",
+        "      if juso[j] == region31[s][i]:\n",
+        "        ans_w.append(y[j])\n",
+        "        ans_g.append(x[j])\n",
+        "        break\n",
+        "\n",
+        "  ans_w31.append(ans_w)\n",
+        "  ans_g31.append(ans_g)\n",
+        "\n",
+        "    \n",
+        "for i in range(5):\n",
+        "  df31[i]['위도']=ans_w31[i]\n",
+        "  df31[i]['경도']=ans_g31[i]\n",
+        "\n",
+        "for i in range(5):\n",
+        "  df31[i].to_excel(\"아파트(전월세)_{}.xlsx\".format(2012+i), index=False, encoding='utf-8-sig')\n",
+        "  \n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "Gl_oyyvA1OCa"
+      },
+      "outputs": [],
+      "source": [
+        "ans_w3 = []\n",
+        "ans_g3 = []\n",
+        "for s in range(6):\n",
+        "  ans_w = []\n",
+        "  ans_g = []\n",
+        "  for i in range(len(region3[s])):\n",
+        "    for j in range(len(juso)):\n",
+        "      if juso[j] == region3[s][i]:\n",
+        "        ans_w.append(y[j])\n",
+        "        ans_g.append(x[j])\n",
+        "        break\n",
+        "\n",
+        "  ans_w3.append(ans_w)\n",
+        "  ans_g3.append(ans_g)\n",
+        "        \n",
+        "\n",
+        "for i in range(6):\n",
+        "  df3[i]['위도']=ans_w3[i]\n",
+        "  df3[i]['경도']=ans_g3[i]\n",
+        "\n",
+        "for i in range(6):\n",
+        "\n",
+        "  df3[i].to_excel(\"아파트(전월세)_{}.xlsx\".format(2017+i), index=False, encoding='utf-8-sig')"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "SuPTOcbuofxM"
+      },
+      "outputs": [],
+      "source": [
+        "ans_w5 = []\n",
+        "ans_g5 = []\n",
+        "\n",
+        "for i in range(len(region5)):\n",
+        "  for j in range(len(juso)):\n",
+        "    if juso[j] == region5[i]:\n",
+        "      ans_w5.append(y[j])\n",
+        "      ans_g5.append(x[j])\n",
+        "      break\n",
+        "\n",
+        "      \n",
+        "\n",
+        "df5['위도']=ans_w5\n",
+        "df5['경도']=ans_g5\n",
+        "\n",
+        "df5.to_excel(\"오피스텔(매매)_2012-2016.xlsx\", index=False, encoding='utf-8-sig')"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "540GIdsdZ9Om"
+      },
+      "outputs": [],
+      "source": [
+        "ans_w6 = []\n",
+        "ans_g6 = []\n",
+        "\n",
+        "for i in range(len(region6)):\n",
+        "  for j in range(len(juso)):\n",
+        "    if juso[j] == region6[i]:\n",
+        "      ans_w6.append(y[j])\n",
+        "      ans_g6.append(x[j])\n",
+        "      break\n",
+        "\n",
+        "\n",
+        "df6['위도']=ans_w6\n",
+        "df6['경도']=ans_g6\n",
+        "\n",
+        "\n",
+        "\n",
+        "df6.to_excel(\"오피스텔(매매)_2017-2022.xlsx\", index=False, encoding='utf-8-sig')"
+      ]
+    }
+  ],
+  "metadata": {
+    "colab": {
+      "collapsed_sections": [],
+      "name": "데이터병합",
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "gpuClass": "standard",
+    "kernelspec": {
+      "display_name": "Python 3",
+      "name": "python3"
+    },
+    "language_info": {
+      "name": "python"
+    },
+    "accelerator": "TPU"
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}
